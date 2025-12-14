@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/DashboardLayout'
@@ -25,7 +25,7 @@ interface Admin {
   role: string
 }
 
-export default function CreateEventPage() {
+function CreateEventPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const eventId = searchParams.get('id')
@@ -1271,5 +1271,19 @@ export default function CreateEventPage() {
         </form>
       </div>
     </DashboardLayout>
+  )
+}
+
+export default function CreateEventPage() {
+  return (
+    <Suspense fallback={
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading...</div>
+        </div>
+      </DashboardLayout>
+    }>
+      <CreateEventPageContent />
+    </Suspense>
   )
 }
