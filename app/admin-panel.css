@@ -1,0 +1,251 @@
+/* Admin Panel Custom Styles */
+/* Color Theme: #5550B7 (Primary Purple) and #ffffff (White) */
+
+/* Custom Color Variables */
+:root {
+  --admin-primary: #5550B7;
+  --admin-primary-dark: #4540A7;
+  --admin-primary-light: #6560C7;
+  --admin-primary-hover: #4540A7;
+  --admin-white: #ffffff;
+  --admin-gray-50: #f9fafb;
+  --admin-gray-100: #f3f4f6;
+  --admin-gray-200: #e5e7eb;
+  --admin-gray-300: #d1d5db;
+  --admin-gray-400: #9ca3af;
+  --admin-gray-500: #6b7280;
+  --admin-gray-600: #4b5563;
+  --admin-gray-700: #374151;
+  --admin-gray-800: #1f2937;
+  --admin-gray-900: #111827;
+}
+
+/* Form Styles */
+.admin-form {
+  @apply bg-white rounded-lg shadow-sm p-6;
+}
+
+.admin-form-group {
+  @apply mb-6;
+}
+
+.admin-form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.admin-form-input {
+  @apply block w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+         text-gray-900 placeholder-gray-400 bg-white
+         focus:outline-none focus:ring-2 focus:ring-[#5550B7] focus:border-[#5550B7]
+         transition-all duration-200;
+}
+
+.admin-form-input:focus {
+  box-shadow: 0 0 0 3px rgba(85, 80, 183, 0.1);
+}
+
+.admin-form-textarea {
+  @apply block w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+         text-gray-900 placeholder-gray-400 bg-white resize-none
+         focus:outline-none focus:ring-2 focus:ring-[#5550B7] focus:border-[#5550B7]
+         transition-all duration-200;
+}
+
+.admin-form-select {
+  @apply block w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+         text-gray-900 bg-white
+         focus:outline-none focus:ring-2 focus:ring-[#5550B7] focus:border-[#5550B7]
+         transition-all duration-200;
+}
+
+.admin-form-select option {
+  @apply text-gray-900 bg-white;
+}
+
+.admin-form-select:invalid {
+  @apply text-gray-500;
+}
+
+.admin-form-checkbox {
+  @apply rounded border-gray-300 text-[#5550B7] focus:ring-[#5550B7] 
+         focus:ring-offset-0 transition-all duration-200;
+}
+
+/* Button Styles */
+.admin-btn-primary {
+  @apply inline-flex items-center justify-center px-6 py-2.5 
+         text-sm font-medium text-white rounded-lg
+         bg-[#5550B7] hover:bg-[#4540A7]
+         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5550B7]
+         transition-all duration-200 shadow-sm hover:shadow-md
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-secondary {
+  @apply inline-flex items-center justify-center px-6 py-2.5 
+         text-sm font-medium text-gray-700 rounded-lg
+         bg-white border border-gray-300 hover:bg-gray-50
+         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5550B7]
+         transition-all duration-200 shadow-sm hover:shadow-md
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-danger {
+  @apply inline-flex items-center justify-center px-6 py-2.5 
+         text-sm font-medium text-white rounded-lg
+         bg-red-600 hover:bg-red-700
+         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500
+         transition-all duration-200 shadow-sm hover:shadow-md
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Card Styles */
+.admin-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6
+         transition-all duration-200 hover:shadow-md;
+}
+
+.admin-card-header {
+  @apply border-b border-gray-200 pb-4 mb-4;
+}
+
+.admin-card-title {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+/* Navigation Styles */
+.admin-nav-link {
+  @apply inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg
+         transition-all duration-200;
+}
+
+.admin-nav-link-active {
+  @apply text-[#5550B7] bg-[#5550B7]/10 border-b-2 border-[#5550B7];
+}
+
+.admin-nav-link-inactive {
+  @apply text-gray-600 hover:text-[#5550B7] hover:bg-gray-50;
+}
+
+/* Badge Styles */
+.admin-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.admin-badge-primary {
+  @apply bg-[#5550B7]/10 text-[#5550B7];
+}
+
+.admin-badge-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.admin-badge-warning {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.admin-badge-danger {
+  @apply bg-red-100 text-red-800;
+}
+
+/* Input Group Styles */
+.admin-input-group {
+  @apply flex items-center gap-2;
+}
+
+.admin-input-group-prepend {
+  @apply px-3 py-2 bg-gray-50 border border-r-0 border-gray-300 rounded-l-lg;
+}
+
+.admin-input-group-append {
+  @apply px-3 py-2 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg;
+}
+
+/* Step Indicator Styles */
+.admin-step-indicator {
+  @apply flex items-center justify-center w-10 h-10 rounded-full
+         font-medium text-sm transition-all duration-200;
+}
+
+.admin-step-active {
+  @apply bg-[#5550B7] text-white shadow-md;
+}
+
+.admin-step-completed {
+  @apply bg-green-500 text-white;
+}
+
+.admin-step-pending {
+  @apply bg-gray-300 text-gray-600;
+}
+
+/* Table Styles */
+.admin-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.admin-table-header {
+  @apply bg-gray-50;
+}
+
+.admin-table-header-cell {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.admin-table-body {
+  @apply bg-white divide-y divide-gray-200;
+}
+
+.admin-table-row {
+  @apply hover:bg-gray-50 transition-colors duration-150;
+}
+
+.admin-table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+/* Alert Styles */
+.admin-alert {
+  @apply rounded-lg p-4 mb-4;
+}
+
+.admin-alert-success {
+  @apply bg-green-50 text-green-800 border border-green-200;
+}
+
+.admin-alert-error {
+  @apply bg-red-50 text-red-800 border border-red-200;
+}
+
+.admin-alert-warning {
+  @apply bg-yellow-50 text-yellow-800 border border-yellow-200;
+}
+
+.admin-alert-info {
+  @apply bg-blue-50 text-blue-800 border border-blue-200;
+}
+
+/* Loading Spinner */
+.admin-spinner {
+  @apply inline-block animate-spin rounded-full border-4 border-solid border-current border-r-transparent
+         align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite];
+}
+
+/* Custom Scrollbar */
+.admin-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded hover:bg-gray-400;
+}
+
+/* Focus Visible */
+.admin-focus-visible {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5550B7] focus-visible:ring-offset-2;
+}
