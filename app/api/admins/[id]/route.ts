@@ -1,6 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getAdminById, deleteAdmin } from '@/lib/auth'
+import { getAdminById, deleteAdmin, updateAdmin } from '@/lib/auth'
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const cookieStore = cookies()
+    const adminId = cookieStore.get('admin_id')?.value
+
+    if (!adminId) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      )
+    }
+
+    const admin = await getAdminById(adminId)
+    if (!admin) {
+      return NextResponse.json(
+        { error: 'Admin not found' },
+        { status: 404 }
+      )
+    }
+
+    if (admin.role !== 'super_admin') {
+      return NextResponse.json(
+        { error: 'Only super admins can update admins' },
+        { status: 403 }
+      )
+    }
+
+    const body = await request.json()
+    const { name, email, role, password } = body
+
+    const updates: any = {}
+    if (name) updates.name = name
+    if (email) updates.email = email
+    if (role) updates.role = role
+    if (password) updates.password = password
+
+    const updatedAdmin = await updateAdmin(params.id, updates)
+
+    if (!updatedAdmin) {
+      return NextResponse.json(
+        { error: 'Failed to update admin' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ admin: updatedAdmin })
+  } catch (error) {
+    console.error('Update admin error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
 
 export async function DELETE(
   request: NextRequest,

@@ -107,6 +107,45 @@ export async function getAllAdmins(): Promise<Admin[]> {
   }
 }
 
+export async function updateAdmin(
+  id: string,
+  updates: {
+    name?: string
+    email?: string
+    role?: AdminRole
+    password?: string
+  }
+): Promise<Admin | null> {
+  try {
+    const updateData: any = {}
+    
+    if (updates.name) updateData.name = updates.name
+    if (updates.email) updateData.email = updates.email
+    if (updates.role) updateData.role = updates.role
+    if (updates.password) {
+      updateData.password_hash = await hashPassword(updates.password)
+    }
+
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Update admin error:', error)
+      return null
+    }
+
+    const { password_hash, ...adminWithoutPassword } = admin
+    return adminWithoutPassword as Admin
+  } catch (error) {
+    console.error('Update admin error:', error)
+    return null
+  }
+}
+
 export async function deleteAdmin(id: string): Promise<boolean> {
   try {
     const { error } = await supabase

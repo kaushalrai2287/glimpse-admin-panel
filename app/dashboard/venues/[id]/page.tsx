@@ -52,6 +52,7 @@ export default function VenueDetailPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
 
   // Modal states
+  const [showEditModal, setShowEditModal] = useState(false)
   const [showFacilityModal, setShowFacilityModal] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
   const [showPhotoModal, setShowPhotoModal] = useState(false)
@@ -216,6 +217,46 @@ export default function VenueDetailPage() {
     }
   }
 
+  const handleUpdateVenue = async (formData: FormData) => {
+    try {
+      const bgImageUrl = formData.get('bgImageUrl') as string
+      const latitudeStr = formData.get('latitude') as string
+      const longitudeStr = formData.get('longitude') as string
+      
+      const updateData: any = {
+        name: formData.get('name'),
+        address: formData.get('address'),
+      }
+
+      const description = formData.get('description') as string
+      const city = formData.get('city') as string
+      
+      if (description) updateData.description = description
+      if (city) updateData.city = city
+      if (bgImageUrl) updateData.bg_image_url = bgImageUrl
+      if (latitudeStr) updateData.latitude = parseFloat(latitudeStr)
+      if (longitudeStr) updateData.longitude = parseFloat(longitudeStr)
+
+      const response = await fetch(`/api/venues/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      })
+
+      if (response.ok) {
+        setShowEditModal(false)
+        fetchData()
+        alert('Venue updated successfully')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to update venue')
+      }
+    } catch (error) {
+      console.error('Update venue error:', error)
+      alert('Failed to update venue')
+    }
+  }
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -262,28 +303,39 @@ export default function VenueDetailPage() {
               <p className="mt-1 text-gray-600">{venue.address}</p>
               {venue.city && <p className="text-gray-500">{venue.city}</p>}
             </div>
-            {isSuperAdmin && (
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowFacilityModal(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#5550B7] hover:bg-[#4540A7]"
-                >
-                  Add Facility
-                </button>
-                <button
-                  onClick={() => setShowContactModal(true)}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  Add Contact
-                </button>
-                <button
-                  onClick={() => setShowPhotoModal(true)}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  Add Photo
-                </button>
-              </div>
-            )}
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="admin-btn-primary"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Venue
+              </button>
+              {isSuperAdmin && (
+                <>
+                  <button
+                    onClick={() => setShowFacilityModal(true)}
+                    className="admin-btn-secondary"
+                  >
+                    Add Facility
+                  </button>
+                  <button
+                    onClick={() => setShowContactModal(true)}
+                    className="admin-btn-secondary"
+                  >
+                    Add Contact
+                  </button>
+                  <button
+                    onClick={() => setShowPhotoModal(true)}
+                    className="admin-btn-secondary"
+                  >
+                    Add Photo
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -431,6 +483,15 @@ export default function VenueDetailPage() {
           )}
         </div>
 
+        {/* Edit Venue Modal */}
+        {showEditModal && (
+          <EditVenueModal
+            venue={venue}
+            onClose={() => setShowEditModal(false)}
+            onSubmit={handleUpdateVenue}
+          />
+        )}
+
         {/* Facility Modal */}
         {showFacilityModal && (
           <FacilityModal
@@ -460,6 +521,196 @@ export default function VenueDetailPage() {
 }
 
 // Modal Components
+function EditVenueModal({ venue, onClose, onSubmit }: { venue: Venue; onClose: () => void; onSubmit: (data: FormData) => void }) {
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div 
+          className="relative transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Modal Header */}
+          <div className="bg-gradient-to-r from-[#5550B7] to-[#4540A7] px-6 py-4 sticky top-0 z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/20">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-white">
+                  Edit Venue
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Modal Body */}
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            const formData = new FormData(e.target as HTMLFormElement)
+            onSubmit(formData)
+          }} className="p-6 space-y-6">
+            {/* Basic Information */}
+            <div className="bg-gradient-to-br from-[#5550B7]/5 to-[#5550B7]/10 rounded-xl p-6 border border-[#5550B7]/20">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-6 bg-[#5550B7] rounded-full"></div>
+                <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Basic Information</h4>
+              </div>
+              <div className="space-y-5">
+                <div>
+                  <label htmlFor="edit-name" className="admin-form-label">
+                    Venue Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="edit-name"
+                    required
+                    defaultValue={venue.name}
+                    placeholder="Enter venue name"
+                    className="admin-form-input"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="edit-address" className="admin-form-label">
+                    Address <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="address"
+                    id="edit-address"
+                    required
+                    rows={3}
+                    defaultValue={venue.address}
+                    placeholder="Enter full address"
+                    className="admin-form-textarea"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="edit-city" className="admin-form-label">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      id="edit-city"
+                      defaultValue={venue.city || ''}
+                      placeholder="Enter city name"
+                      className="admin-form-input"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="edit-bgImageUrl" className="admin-form-label">
+                      Background Image URL
+                    </label>
+                    <input
+                      type="url"
+                      name="bgImageUrl"
+                      id="edit-bgImageUrl"
+                      defaultValue={venue.bg_image_url || ''}
+                      placeholder="https://example.com/image.jpg"
+                      className="admin-form-input"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="edit-description" className="admin-form-label">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    id="edit-description"
+                    rows={4}
+                    defaultValue={venue.description || ''}
+                    placeholder="Enter venue description (optional)"
+                    className="admin-form-textarea"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Location Coordinates */}
+            <div className="bg-gradient-to-br from-[#5550B7]/5 to-[#5550B7]/10 rounded-xl p-6 border border-[#5550B7]/20">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-6 bg-[#5550B7] rounded-full"></div>
+                <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Location Coordinates</h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="edit-latitude" className="admin-form-label">
+                    Latitude
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="latitude"
+                    id="edit-latitude"
+                    defaultValue={venue.latitude || ''}
+                    placeholder="e.g., 40.7128"
+                    className="admin-form-input"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="edit-longitude" className="admin-form-label">
+                    Longitude
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="longitude"
+                    id="edit-longitude"
+                    defaultValue={venue.longitude || ''}
+                    placeholder="e.g., -74.0060"
+                    className="admin-form-input"
+                  />
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Optional: Provide coordinates for map integration
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={onClose}
+                className="admin-btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="admin-btn-primary"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Update Venue
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function FacilityModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (data: FormData) => void }) {
   return (
     <div className="fixed inset-0 z-10 overflow-y-auto">

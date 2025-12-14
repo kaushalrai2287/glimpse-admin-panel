@@ -18,6 +18,8 @@ export default function AdminsPage() {
   const [loading, setLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<Admin | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
 
   useEffect(() => {
@@ -97,6 +99,47 @@ export default function AdminsPage() {
     } catch (error) {
       console.error('Create admin error:', error)
       alert('Failed to create admin')
+    }
+  }
+
+  const handleEdit = (admin: Admin) => {
+    setEditingAdmin(admin)
+    setShowEditModal(true)
+  }
+
+  const handleUpdate = async (formData: FormData) => {
+    if (!editingAdmin) return
+
+    try {
+      const updateData: any = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        role: formData.get('role')
+      }
+
+      const password = formData.get('password') as string
+      if (password && password.trim()) {
+        updateData.password = password
+      }
+
+      const response = await fetch(`/api/admins/${editingAdmin.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      })
+
+      if (response.ok) {
+        setShowEditModal(false)
+        setEditingAdmin(null)
+        fetchData() // Refresh the list
+        alert('Admin updated successfully')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to update admin')
+      }
+    } catch (error) {
+      console.error('Update admin error:', error)
+      alert('Failed to update admin')
     }
   }
 
@@ -180,14 +223,28 @@ export default function AdminsPage() {
                           {new Date(admin.created_at).toLocaleDateString()}
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          {isSuperAdmin && admin.id !== currentUser?.id && admin.role === 'event_admin' && (
-                            <button
-                              onClick={() => handleDelete(admin.id, admin.name)}
-                              disabled={deleteLoading === admin.id}
-                              className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {deleteLoading === admin.id ? 'Deleting...' : 'Delete'}
-                            </button>
+                          {isSuperAdmin && (
+                            <div className="flex items-center justify-end gap-3">
+                              {admin.id !== currentUser?.id && (
+                                <>
+                                  <button
+                                    onClick={() => handleEdit(admin)}
+                                    className="text-[#5550B7] hover:text-[#4540A7]"
+                                  >
+                                    Edit
+                                  </button>
+                                  {admin.role === 'event_admin' && (
+                                    <button
+                                      onClick={() => handleDelete(admin.id, admin.name)}
+                                      disabled={deleteLoading === admin.id}
+                                      className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {deleteLoading === admin.id ? 'Deleting...' : 'Delete'}
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -198,6 +255,155 @@ export default function AdminsPage() {
             </div>
           </div>
         </div>
+
+        {/* Edit Admin Modal */}
+        {showEditModal && editingAdmin && (
+          <div className="fixed inset-0 z-50 overflow-y-auto" onClick={() => { setShowEditModal(false); setEditingAdmin(null) }}>
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div 
+                className="relative transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all w-full max-w-lg"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="bg-gradient-to-r from-[#5550B7] to-[#4540A7] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/20">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-semibold text-white">
+                        Edit Admin
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setShowEditModal(false); setEditingAdmin(null) }}
+                      className="text-white/80 hover:text-white transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Modal Body */}
+                <form onSubmit={(e) => {
+                  e.preventDefault()
+                  const formData = new FormData(e.target as HTMLFormElement)
+                  handleUpdate(formData)
+                }} className="p-6 space-y-6">
+                  {/* Basic Information Section */}
+                  <div className="bg-gradient-to-br from-[#5550B7]/5 to-[#5550B7]/10 rounded-xl p-6 border border-[#5550B7]/20">
+                    <div className="flex items-center gap-2 mb-5">
+                      <div className="w-1 h-6 bg-[#5550B7] rounded-full"></div>
+                      <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Basic Information</h4>
+                    </div>
+                    <div className="space-y-5">
+                      <div>
+                        <label htmlFor="edit-name" className="admin-form-label">
+                          Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          id="edit-name"
+                          required
+                          defaultValue={editingAdmin.name}
+                          placeholder="Enter admin name"
+                          className="admin-form-input"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="edit-email" className="admin-form-label">
+                          Email <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          id="edit-email"
+                          required
+                          defaultValue={editingAdmin.email}
+                          placeholder="Enter email address"
+                          className="admin-form-input"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="edit-role" className="admin-form-label">
+                          Role <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          name="role"
+                          id="edit-role"
+                          required
+                          defaultValue={editingAdmin.role}
+                          className="admin-form-select"
+                        >
+                          <option value="event_admin">Event Admin</option>
+                          <option value="super_admin">Super Admin</option>
+                        </select>
+                        <p className="mt-2 text-xs text-gray-500 flex items-start gap-2">
+                          <svg className="w-4 h-4 text-[#5550B7] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Event Admin can only access assigned events. Super Admin can access all events and create events.</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Security Section */}
+                  <div className="bg-gradient-to-br from-[#5550B7]/5 to-[#5550B7]/10 rounded-xl p-6 border border-[#5550B7]/20">
+                    <div className="flex items-center gap-2 mb-5">
+                      <div className="w-1 h-6 bg-[#5550B7] rounded-full"></div>
+                      <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Security</h4>
+                    </div>
+                    <div>
+                      <label htmlFor="edit-password" className="admin-form-label">
+                        New Password (leave blank to keep current)
+                      </label>
+                      <input
+                        type="password"
+                        name="password"
+                        id="edit-password"
+                        minLength={6}
+                        placeholder="Minimum 6 characters (optional)"
+                        className="admin-form-input"
+                      />
+                      <p className="mt-2 text-xs text-gray-500">
+                        Only enter a new password if you want to change it. Leave blank to keep the current password.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => { setShowEditModal(false); setEditingAdmin(null) }}
+                      className="admin-btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="admin-btn-primary"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Update Admin
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Create Admin Modal */}
         {showCreateModal && (
