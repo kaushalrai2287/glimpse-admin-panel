@@ -9,7 +9,11 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!country_code || !phone_no || !event_code || !otp) {
       return NextResponse.json(
-        { error: 'Missing required fields: country_code, phone_no, event_code, and otp are required' },
+        { 
+          status: 0,
+          message: 'Missing required fields: country_code, phone_no, event_code, and otp are required',
+          data: {}
+        },
         { status: 400 }
       )
     }
@@ -17,7 +21,11 @@ export async function POST(request: NextRequest) {
     // Validate phone number format
     if (!/^\d+$/.test(phone_no)) {
       return NextResponse.json(
-        { error: 'Invalid phone number format' },
+        { 
+          status: 0,
+          message: 'Invalid phone number format',
+          data: {}
+        },
         { status: 400 }
       )
     }
@@ -25,7 +33,11 @@ export async function POST(request: NextRequest) {
     // Validate OTP format (4 digits)
     if (!/^\d{4}$/.test(otp)) {
       return NextResponse.json(
-        { error: 'Invalid OTP format. OTP must be 4 digits' },
+        { 
+          status: 0,
+          message: 'Invalid OTP format. OTP must be 4 digits',
+          data: {}
+        },
         { status: 400 }
       )
     }
@@ -53,7 +65,11 @@ export async function POST(request: NextRequest) {
 
     if (eventError || !event) {
       return NextResponse.json(
-        { error: 'Invalid event code' },
+        { 
+          status: 0,
+          message: 'Invalid event code',
+          data: {}
+        },
         { status: 404 }
       )
     }
@@ -61,7 +77,11 @@ export async function POST(request: NextRequest) {
     // Check if event is enabled
     if (!event.is_enabled) {
       return NextResponse.json(
-        { error: 'Event is currently disabled' },
+        { 
+          status: 0,
+          message: 'Event is currently disabled',
+          data: {}
+        },
         { status: 403 }
       )
     }
@@ -69,7 +89,11 @@ export async function POST(request: NextRequest) {
     // Check if event status is active
     if (event.status !== 'active') {
       return NextResponse.json(
-        { error: 'Event is not active' },
+        { 
+          status: 0,
+          message: 'Event is not active',
+          data: {}
+        },
         { status: 403 }
       )
     }
@@ -88,7 +112,11 @@ export async function POST(request: NextRequest) {
 
     if (otpError || !otpRecord) {
       return NextResponse.json(
-        { error: 'Invalid or expired OTP' },
+        { 
+          status: 0,
+          message: 'Invalid or expired OTP',
+          data: {}
+        },
         { status: 401 }
       )
     }
@@ -124,7 +152,11 @@ export async function POST(request: NextRequest) {
       if (createUserError || !newUser) {
         console.error('Create user error:', createUserError)
         return NextResponse.json(
-          { error: 'Failed to create user' },
+          { 
+            status: 0,
+            message: 'Failed to create user',
+            data: {}
+          },
           { status: 500 }
         )
       }
@@ -207,8 +239,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build response
-    const response: any = {
-      success: true,
+    const responseData: any = {
       user: {
         user_id: user.id,
         name: user.username || '',
@@ -225,7 +256,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (device) {
-      response.device = {
+      responseData.device = {
         id: device.id,
         device_id: device.id, // Same as id
         device_type: device.device_type,
@@ -234,11 +265,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(response)
+    return NextResponse.json({
+      status: 1,
+      message: 'OTP verified successfully',
+      data: responseData
+    })
   } catch (error) {
     console.error('Verify OTP error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        status: 0,
+        message: 'Internal server error',
+        data: {}
+      },
       { status: 500 }
     )
   }

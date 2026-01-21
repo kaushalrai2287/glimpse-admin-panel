@@ -14,7 +14,11 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!country_code || !phone_no || !event_code) {
       return NextResponse.json(
-        { error: 'Missing required fields: country_code, phone_no, and event_code are required' },
+        { 
+          status: 0,
+          message: 'Missing required fields: country_code, phone_no, and event_code are required',
+          data: {}
+        },
         { status: 400 }
       )
     }
@@ -22,7 +26,11 @@ export async function POST(request: NextRequest) {
     // Validate phone number format
     if (!/^\d+$/.test(phone_no)) {
       return NextResponse.json(
-        { error: 'Invalid phone number format' },
+        { 
+          status: 0,
+          message: 'Invalid phone number format',
+          data: {}
+        },
         { status: 400 }
       )
     }
@@ -53,7 +61,11 @@ export async function POST(request: NextRequest) {
 
     if (eventError || !event) {
       return NextResponse.json(
-        { error: 'Invalid event code' },
+        { 
+          status: 0,
+          message: 'Invalid event code',
+          data: {}
+        },
         { status: 404 }
       )
     }
@@ -61,7 +73,11 @@ export async function POST(request: NextRequest) {
     // Check if event is enabled
     if (!event.is_enabled) {
       return NextResponse.json(
-        { error: 'Event is currently disabled' },
+        { 
+          status: 0,
+          message: 'Event is currently disabled',
+          data: {}
+        },
         { status: 403 }
       )
     }
@@ -69,7 +85,11 @@ export async function POST(request: NextRequest) {
     // Check if event status is active
     if (event.status !== 'active') {
       return NextResponse.json(
-        { error: 'Event is not active' },
+        { 
+          status: 0,
+          message: 'Event is not active',
+          data: {}
+        },
         { status: 403 }
       )
     }
@@ -103,22 +123,32 @@ export async function POST(request: NextRequest) {
     if (otpError) {
       console.error('OTP creation error:', otpError)
       return NextResponse.json(
-        { error: 'Failed to generate OTP' },
+        { 
+          status: 0,
+          message: 'Failed to generate OTP',
+          data: {}
+        },
         { status: 500 }
       )
     }
 
     // Return OTP (in production, you might want to send this via SMS instead)
     return NextResponse.json({
-      success: true,
-      otp: otp,
+      status: 1,
       message: 'OTP generated successfully',
-      expires_in: 600, // 10 minutes in seconds
+      data: {
+        otp: otp,
+        expires_in: 600, // 10 minutes in seconds
+      }
     })
   } catch (error) {
     console.error('App login error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        status: 0,
+        message: 'Internal server error',
+        data: {}
+      },
       { status: 500 }
     )
   }

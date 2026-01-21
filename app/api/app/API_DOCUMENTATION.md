@@ -53,10 +53,12 @@ Content-Type: application/json
 **Success Response (200 OK):**
 ```json
 {
-  "success": true,
-  "otp": "5311",
+  "status": 1,
   "message": "OTP generated successfully",
-  "expires_in": 600
+  "data": {
+    "otp": "5311",
+    "expires_in": 600
+  }
 }
 ```
 
@@ -65,42 +67,54 @@ Content-Type: application/json
 **400 Bad Request - Missing Fields:**
 ```json
 {
-  "error": "Missing required fields: country_code, phone_no, and event_code are required"
+  "status": 0,
+  "message": "Missing required fields: country_code, phone_no, and event_code are required",
+  "data": {}
 }
 ```
 
 **400 Bad Request - Invalid Phone Format:**
 ```json
 {
-  "error": "Invalid phone number format"
+  "status": 0,
+  "message": "Invalid phone number format",
+  "data": {}
 }
 ```
 
 **404 Not Found - Invalid Event Code:**
 ```json
 {
-  "error": "Invalid event code"
+  "status": 0,
+  "message": "Invalid event code",
+  "data": {}
 }
 ```
 
 **403 Forbidden - Event Disabled:**
 ```json
 {
-  "error": "Event is currently disabled"
+  "status": 0,
+  "message": "Event is currently disabled",
+  "data": {}
 }
 ```
 
 **403 Forbidden - Event Not Active:**
 ```json
 {
-  "error": "Event is not active"
+  "status": 0,
+  "message": "Event is not active",
+  "data": {}
 }
 ```
 
 **500 Internal Server Error:**
 ```json
 {
-  "error": "Failed to generate OTP"
+  "status": 0,
+  "message": "Failed to generate OTP",
+  "data": {}
 }
 ```
 
@@ -155,26 +169,29 @@ Content-Type: application/json
 **Success Response (200 OK):**
 ```json
 {
-  "success": true,
-  "user": {
-    "user_id": "aede0b97-b0f3-4147-98e6-12f89d9dde0e",
-    "name": "John Doe",
-    "otp_phone_no": "+11234567890"
-  },
-  "event": {
-    "event_id": "EVT-1765350734727-HJ80BOC",
-    "event_login_code": "S07OGPCW",
-    "primary_color": "#3B82F6",
-    "secondary_color": "#1F2937",
-    "app_version": "1.0.0",
-    "forceful_update": false
-  },
-  "device": {
-    "id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
-    "device_id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
-    "device_type": "android",
-    "token": "fcm_token_here",
-    "version": "13"
+  "status": 1,
+  "message": "OTP verified successfully",
+  "data": {
+    "user": {
+      "user_id": "aede0b97-b0f3-4147-98e6-12f89d9dde0e",
+      "name": "John Doe",
+      "otp_phone_no": "+11234567890"
+    },
+    "event": {
+      "event_id": "EVT-1765350734727-HJ80BOC",
+      "event_login_code": "S07OGPCW",
+      "primary_color": "#3B82F6",
+      "secondary_color": "#1F2937",
+      "app_version": "1.0.0",
+      "forceful_update": false
+    },
+    "device": {
+      "id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
+      "device_id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
+      "device_type": "android",
+      "token": "fcm_token_here",
+      "version": "13"
+    }
   }
 }
 ```
@@ -212,56 +229,72 @@ Content-Type: application/json
 **400 Bad Request - Missing Fields:**
 ```json
 {
-  "error": "Missing required fields: country_code, phone_no, event_code, and otp are required"
+  "status": 0,
+  "message": "Missing required fields: country_code, phone_no, event_code, and otp are required",
+  "data": {}
 }
 ```
 
 **400 Bad Request - Invalid Phone Format:**
 ```json
 {
-  "error": "Invalid phone number format"
+  "status": 0,
+  "message": "Invalid phone number format",
+  "data": {}
 }
 ```
 
 **400 Bad Request - Invalid OTP Format:**
 ```json
 {
-  "error": "Invalid OTP format. OTP must be 4 digits"
+  "status": 0,
+  "message": "Invalid OTP format. OTP must be 4 digits",
+  "data": {}
 }
 ```
 
 **401 Unauthorized - Invalid/Expired OTP:**
 ```json
 {
-  "error": "Invalid or expired OTP"
+  "status": 0,
+  "message": "Invalid or expired OTP",
+  "data": {}
 }
 ```
 
 **404 Not Found - Invalid Event Code:**
 ```json
 {
-  "error": "Invalid event code"
+  "status": 0,
+  "message": "Invalid event code",
+  "data": {}
 }
 ```
 
 **403 Forbidden - Event Disabled:**
 ```json
 {
-  "error": "Event is currently disabled"
+  "status": 0,
+  "message": "Event is currently disabled",
+  "data": {}
 }
 ```
 
 **403 Forbidden - Event Not Active:**
 ```json
 {
-  "error": "Event is not active"
+  "status": 0,
+  "message": "Event is not active",
+  "data": {}
 }
 ```
 
 **500 Internal Server Error:**
 ```json
 {
-  "error": "Failed to create user"
+  "status": 0,
+  "message": "Failed to create user",
+  "data": {}
 }
 ```
 
@@ -269,7 +302,9 @@ or
 
 ```json
 {
-  "error": "Internal server error"
+  "status": 0,
+  "message": "Internal server error",
+  "data": {}
 }
 ```
 
@@ -307,10 +342,12 @@ curl -X POST http://localhost:3000/api/app/auth/login \
 **Response:**
 ```json
 {
-  "success": true,
-  "otp": "5311",
+  "status": 1,
   "message": "OTP generated successfully",
-  "expires_in": 600
+  "data": {
+    "otp": "5311",
+    "expires_in": 600
+  }
 }
 ```
 
@@ -334,26 +371,29 @@ curl -X POST http://localhost:3000/api/app/auth/verify-otp \
 **Response:**
 ```json
 {
-  "success": true,
-  "user": {
-    "user_id": "aede0b97-b0f3-4147-98e6-12f89d9dde0e",
-    "name": "John Doe",
-    "otp_phone_no": "+11234567890"
-  },
-  "event": {
-    "event_id": "EVT-1765350734727-HJ80BOC",
-    "event_login_code": "S07OGPCW",
-    "primary_color": "#3B82F6",
-    "secondary_color": "#1F2937",
-    "app_version": "1.0.0",
-    "forceful_update": false
-  },
-  "device": {
-    "id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
-    "device_id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
-    "device_type": "android",
-    "token": "fcm_token_here",
-    "version": "13"
+  "status": 1,
+  "message": "OTP verified successfully",
+  "data": {
+    "user": {
+      "user_id": "aede0b97-b0f3-4147-98e6-12f89d9dde0e",
+      "name": "John Doe",
+      "otp_phone_no": "+11234567890"
+    },
+    "event": {
+      "event_id": "EVT-1765350734727-HJ80BOC",
+      "event_login_code": "S07OGPCW",
+      "primary_color": "#3B82F6",
+      "secondary_color": "#1F2937",
+      "app_version": "1.0.0",
+      "forceful_update": false
+    },
+    "device": {
+      "id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
+      "device_id": "0a61e0c0-9d44-4f74-875a-9930daec4390",
+      "device_type": "android",
+      "token": "fcm_token_here",
+      "version": "13"
+    }
   }
 }
 ```
