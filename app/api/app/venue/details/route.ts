@@ -4,13 +4,24 @@ import { supabase } from '@/lib/supabase/client'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const user_id = searchParams.get('user_id')
-    const event_id = searchParams.get('event_id')
+    let user_id = searchParams.get('user_id')
+    let event_id = searchParams.get('event_id')
+
+    // If not in query, allow body (some clients send GET with JSON body)
+    if (!user_id || !event_id) {
+      try {
+        const body = await request.json()
+        user_id = user_id ?? (body?.user_id != null ? String(body.user_id) : null)
+        event_id = event_id ?? (body?.event_id != null ? String(body.event_id) : null)
+      } catch {
+        // ignore if no/invalid body
+      }
+    }
 
     // Validate required fields
     if (!user_id || !event_id) {
       return NextResponse.json(
-        { error: 'Missing required parameters: user_id and event_id are required' },
+        { error: 'Missing required parameters: user_id and event_id are required (query or body)' },
         { status: 400 }
       )
     }
