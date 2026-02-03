@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/DashboardLayout'
+import ImageUpload from '@/components/ImageUpload'
+import ImageDisplay from '@/components/ImageDisplay'
 
 interface Venue {
   id: string
@@ -95,7 +97,7 @@ export default function VenueDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.get('name'),
-          imageUrl: formData.get('imageUrl'),
+          imageUrl: formData.get('imageUrl') || undefined,
         })
       })
 
@@ -137,9 +139,9 @@ export default function VenueDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.get('name'),
-          imageUrl: formData.get('imageUrl'),
-          phoneNumber: formData.get('phoneNumber'),
-          email: formData.get('email'),
+          imageUrl: formData.get('imageUrl') || undefined,
+          phoneNumber: formData.get('phoneNumber') || undefined,
+          email: formData.get('email') || undefined,
         })
       })
 
@@ -176,12 +178,26 @@ export default function VenueDetailPage() {
 
   const handleAddPhoto = async (formData: FormData) => {
     try {
+      const imageUrl = formData.get('imageUrl') as string | null
+      
+      console.log('Photo form data:', {
+        imageUrl,
+        altText: formData.get('altText'),
+        sortOrder: formData.get('sortOrder'),
+        allKeys: Array.from(formData.keys())
+      })
+      
+      if (!imageUrl || imageUrl.trim() === '') {
+        alert('Please upload an image before submitting')
+        return
+      }
+
       const response = await fetch(`/api/venues/${params.id}/photos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageUrl: formData.get('imageUrl'),
-          altText: formData.get('altText'),
+          imageUrl: imageUrl,
+          altText: formData.get('altText') || undefined,
           sortOrder: parseInt(formData.get('sortOrder') as string) || 0,
         })
       })
@@ -190,7 +206,8 @@ export default function VenueDetailPage() {
         setShowPhotoModal(false)
         fetchData()
       } else {
-        alert('Failed to add photo')
+        const errorData = await response.json().catch(() => ({ error: 'Failed to add photo' }))
+        alert(errorData.error || 'Failed to add photo')
       }
     } catch (error) {
       console.error('Add photo error:', error)
@@ -384,7 +401,7 @@ export default function VenueDetailPage() {
               {facilities.map((facility) => (
                 <div key={facility.id} className="border rounded-lg p-4">
                   {facility.image_url && (
-                    <img
+                    <ImageDisplay
                       src={facility.image_url}
                       alt={facility.name}
                       className="w-full h-32 object-cover rounded mb-3"
@@ -418,7 +435,7 @@ export default function VenueDetailPage() {
                 <div key={contact.id} className="border rounded-lg p-4">
                   <div className="flex items-start space-x-4">
                     {contact.image_url && (
-                      <img
+                      <ImageDisplay
                         src={contact.image_url}
                         alt={contact.name}
                         className="w-16 h-16 rounded-full object-cover"
@@ -459,7 +476,7 @@ export default function VenueDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {photos.map((photo) => (
                 <div key={photo.id} className="relative group">
-                  <img
+                  <ImageDisplay
                     src={photo.image_url}
                     alt={photo.alt_text || 'Venue photo'}
                     className="w-full h-48 object-cover rounded-lg"
@@ -612,19 +629,13 @@ function EditVenueModal({ venue, onClose, onSubmit }: { venue: Venue; onClose: (
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="edit-bgImageUrl" className="admin-form-label">
-                      Background Image URL
-                    </label>
-                    <input
-                      type="url"
-                      name="bgImageUrl"
-                      id="edit-bgImageUrl"
-                      defaultValue={venue.bg_image_url || ''}
-                      placeholder="https://example.com/image.jpg"
-                      className="admin-form-input"
-                    />
-                  </div>
+                  <ImageUpload
+                    label="Background Image"
+                    name="bgImageUrl"
+                    category="venues/bg"
+                    value={venue.bg_image_url}
+                    className="admin-form-group mb-0"
+                  />
                 </div>
 
                 <div>
@@ -742,17 +753,11 @@ function FacilityModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (
               />
             </div>
 
-            <div>
-              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-                Image URL
-              </label>
-              <input
-                type="url"
-                name="imageUrl"
-                id="imageUrl"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5550B7] focus:ring-[#5550B7] text-gray-900 placeholder-gray-500 bg-white sm:text-sm"
-              />
-            </div>
+            <ImageUpload
+              label="Facility Image"
+              name="imageUrl"
+              category="venues/facilities"
+            />
 
             <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
               <button
@@ -807,17 +812,11 @@ function ContactModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (d
               />
             </div>
 
-            <div>
-              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-                Image URL
-              </label>
-              <input
-                type="url"
-                name="imageUrl"
-                id="imageUrl"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5550B7] focus:ring-[#5550B7] text-gray-900 placeholder-gray-500 bg-white sm:text-sm"
-              />
-            </div>
+            <ImageUpload
+              label="Contact Image"
+              name="imageUrl"
+              category="venues/contacts"
+            />
 
             <div>
               <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
@@ -881,20 +880,22 @@ function PhotoModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (dat
           <form onSubmit={(e) => {
             e.preventDefault()
             const formData = new FormData(e.target as HTMLFormElement)
+            const imageUrl = formData.get('imageUrl') as string | null
+            
+            // Validate image is uploaded
+            if (!imageUrl || imageUrl.trim() === '') {
+              alert('Please upload an image before submitting')
+              return
+            }
+            
             onSubmit(formData)
           }} className="mt-6 space-y-4">
-            <div>
-              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-                Image URL *
-              </label>
-              <input
-                type="url"
-                name="imageUrl"
-                id="imageUrl"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#5550B7] focus:ring-[#5550B7] text-gray-900 placeholder-gray-500 bg-white sm:text-sm"
-              />
-            </div>
+            <ImageUpload
+              label="Venue Photo"
+              name="imageUrl"
+              category="venues/photos"
+              required
+            />
 
             <div>
               <label htmlFor="altText" className="block text-sm font-medium text-gray-700">

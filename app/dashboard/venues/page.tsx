@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/DashboardLayout'
+import ImageUpload from '@/components/ImageUpload'
 
 interface Venue {
   id: string
@@ -326,15 +327,11 @@ export default function VenuesPage() {
                         </div>
 
                         <div>
-                          <label htmlFor="bgImageUrl" className="admin-form-label">
-                            Background Image URL
-                          </label>
-                          <input
-                            type="url"
+                          <ImageUpload
+                            label="Background Image"
                             name="bgImageUrl"
-                            id="bgImageUrl"
-                            placeholder="https://example.com/image.jpg"
-                            className="admin-form-input"
+                            category="venues/bg"
+                            className="admin-form-group mb-0"
                           />
                         </div>
                       </div>

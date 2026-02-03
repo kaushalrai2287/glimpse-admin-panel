@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import DashboardLayout from '@/components/DashboardLayout'
+import ImageUpload from '@/components/ImageUpload'
 
 interface Category {
   id: string
@@ -545,13 +546,12 @@ function CreateEventPageContent() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="admin-form-group mb-0">
-                      <label className="admin-form-label">Splash Image URL</label>
-                      <input
-                        type="url"
+                      <ImageUpload
+                        label="Splash Image"
+                        name="splashImageUrl"
+                        category="events/splash"
                         value={formData.splashImageUrl}
-                        onChange={(e) => updateFormData('splashImageUrl', e.target.value)}
-                        className="admin-form-input"
-                        placeholder="https://example.com/splash.jpg"
+                        onChange={(url) => updateFormData('splashImageUrl', url)}
                       />
                     </div>
 
@@ -776,13 +776,12 @@ function CreateEventPageContent() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="admin-form-group mb-0">
-                        <label className="admin-form-label">Background Banner Image URL</label>
-                        <input
-                          type="url"
+                        <ImageUpload
+                          label="Background Banner Image"
+                          name="backgroundBannerImageUrl"
+                          category="events/banners"
                           value={formData.backgroundBannerImageUrl}
-                          onChange={(e) => updateFormData('backgroundBannerImageUrl', e.target.value)}
-                          className="admin-form-input"
-                          placeholder="https://example.com/banner.jpg"
+                          onChange={(url) => updateFormData('backgroundBannerImageUrl', url)}
                         />
                       </div>
 
@@ -844,16 +843,17 @@ function CreateEventPageContent() {
                             }}
                             className="admin-form-input text-sm"
                           />
-                          <input
-                            type="url"
-                            placeholder="Image URL"
+                          <ImageUpload
+                            label=""
+                            name={`explore-image-${index}`}
+                            category="events/explore"
                             value={item.imageUrl}
-                            onChange={(e) => {
+                            onChange={(url) => {
                               const newItems = [...exploreItems]
-                              newItems[index].imageUrl = e.target.value
+                              newItems[index].imageUrl = url
                               setExploreItems(newItems)
                             }}
-                            className="admin-form-input text-sm"
+                            className="text-sm"
                           />
                         </div>
                         <button
@@ -892,16 +892,17 @@ function CreateEventPageContent() {
                     {happeningItems.map((item, index) => (
                       <div key={index} className="flex items-center gap-4 p-5 border-2 border-gray-200 rounded-lg bg-white hover:border-[#5550B7]/30 hover:shadow-md transition-all">
                         <div className="flex-1">
-                          <input
-                            type="url"
-                            placeholder="Image URL"
+                          <ImageUpload
+                            label=""
+                            name={`happening-image-${index}`}
+                            category="events/happening"
                             value={item.imageUrl}
-                            onChange={(e) => {
+                            onChange={(url) => {
                               const newItems = [...happeningItems]
-                              newItems[index].imageUrl = e.target.value
+                              newItems[index].imageUrl = url
                               setHappeningItems(newItems)
                             }}
-                            className="admin-form-input text-sm"
+                            className="text-sm"
                           />
                         </div>
                         <button
@@ -947,13 +948,12 @@ function CreateEventPageContent() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="admin-form-group mb-0">
-                        <label className="admin-form-label">Background Banner Image URL</label>
-                        <input
-                          type="url"
+                        <ImageUpload
+                          label="Background Banner Image"
+                          name="duringBackgroundBannerImageUrl"
+                          category="events/banners"
                           value={formData.duringBackgroundBannerImageUrl}
-                          onChange={(e) => updateFormData('duringBackgroundBannerImageUrl', e.target.value)}
-                          className="admin-form-input"
-                          placeholder="https://example.com/banner.jpg"
+                          onChange={(url) => updateFormData('duringBackgroundBannerImageUrl', url)}
                         />
                       </div>
 
@@ -1015,17 +1015,20 @@ function CreateEventPageContent() {
                             }}
                             className="admin-form-input text-sm"
                           />
-                          <input
-                            type="url"
-                            placeholder="Image URL"
-                            value={session.imageUrl}
-                            onChange={(e) => {
-                              const newSessions = [...sessions]
-                              newSessions[index].imageUrl = e.target.value
-                              setSessions(newSessions)
-                            }}
-                            className="admin-form-input text-sm"
-                          />
+                          <div className="col-span-2">
+                            <ImageUpload
+                              label="Session Image"
+                              name={`session-image-${index}`}
+                              category="events/sessions"
+                              value={session.imageUrl}
+                              onChange={(url) => {
+                                const newSessions = [...sessions]
+                                newSessions[index].imageUrl = url
+                                setSessions(newSessions)
+                              }}
+                              className="text-sm"
+                            />
+                          </div>
                           <input
                             type="text"
                             placeholder="Venue Name"
@@ -1122,13 +1125,12 @@ function CreateEventPageContent() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="admin-form-group mb-0">
-                        <label className="admin-form-label">Background Banner Image URL</label>
-                        <input
-                          type="url"
+                        <ImageUpload
+                          label="Background Banner Image"
+                          name="postBackgroundBannerImageUrl"
+                          category="events/banners"
                           value={formData.postBackgroundBannerImageUrl}
-                          onChange={(e) => updateFormData('postBackgroundBannerImageUrl', e.target.value)}
-                          className="admin-form-input"
-                          placeholder="https://example.com/banner.jpg"
+                          onChange={(url) => updateFormData('postBackgroundBannerImageUrl', url)}
                         />
                       </div>
 
@@ -1189,17 +1191,20 @@ function CreateEventPageContent() {
                             }}
                             className="admin-form-input text-sm"
                           />
-                          <input
-                            type="url"
-                            placeholder="Image URL"
-                            value={day.imageUrl}
-                            onChange={(e) => {
-                              const newDays = [...eventDays]
-                              newDays[index].imageUrl = e.target.value
-                              setEventDays(newDays)
-                            }}
-                            className="admin-form-input text-sm"
-                          />
+                          <div className="col-span-2">
+                            <ImageUpload
+                              label="Day Image"
+                              name={`day-image-${index}`}
+                              category="events/days"
+                              value={day.imageUrl}
+                              onChange={(url) => {
+                                const newDays = [...eventDays]
+                                newDays[index].imageUrl = url
+                                setEventDays(newDays)
+                              }}
+                              className="text-sm"
+                            />
+                          </div>
                           <input
                             type="text"
                             placeholder="Description"
