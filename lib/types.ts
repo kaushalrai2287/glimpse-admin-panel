@@ -121,6 +121,17 @@ export interface PreEventHappening {
   created_at: string
 }
 
+export interface EventIntro {
+  id: string
+  event_id: string
+  title: string
+  description?: string
+  image_url: string
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
 export interface EventSession {
   id: string
   event_id: string
@@ -176,6 +187,7 @@ export interface EventWithAssignedAdmins extends Event {
   assigned_admins?: Admin[]
   category?: EventCategory
   venue?: VenueWithDetails
+  event_intro?: EventIntro[]
   pre_event_explore?: PreEventExplore[]
   pre_event_happening?: PreEventHappening[]
   event_sessions?: EventSession[]

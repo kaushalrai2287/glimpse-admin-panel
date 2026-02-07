@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       'venues/photos',
       'events/splash',
       'events/banners',
+      'events/intro',
       'events/explore',
       'events/happening',
       'events/sessions',

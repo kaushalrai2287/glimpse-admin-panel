@@ -1,10 +1,85 @@
 import { supabase } from './supabase/client'
 import type {
+  EventIntro,
   PreEventExplore,
   PreEventHappening,
   DuringEventContent,
   PostEventContent
 } from './types'
+
+// Event intro content
+export async function getEventIntro(eventId: string): Promise<EventIntro[]> {
+  try {
+    const { data: intro, error } = await supabase
+      .from('event_intro')
+      .select('*')
+      .eq('event_id', eventId)
+      .order('sort_order', { ascending: true })
+
+    if (error) {
+      console.error('Get event intro error:', error)
+      return []
+    }
+
+    return intro as EventIntro[]
+  } catch (error) {
+    console.error('Get event intro error:', error)
+    return []
+  }
+}
+
+export async function addEventIntro(
+  eventId: string,
+  title: string,
+  imageUrl: string,
+  options: {
+    description?: string
+    sortOrder?: number
+  } = {}
+): Promise<EventIntro | null> {
+  try {
+    const { data: intro, error } = await supabase
+      .from('event_intro')
+      .insert({
+        event_id: eventId,
+        title,
+        description: options.description,
+        image_url: imageUrl,
+        sort_order: options.sortOrder || 0,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Add event intro error:', error)
+      return null
+    }
+
+    return intro as EventIntro
+  } catch (error) {
+    console.error('Add event intro error:', error)
+    return null
+  }
+}
+
+export async function removeEventIntro(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('event_intro')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Remove event intro error:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Remove event intro error:', error)
+    return false
+  }
+}
 
 // Pre-event explore content
 export async function getPreEventExplore(eventId: string): Promise<PreEventExplore[]> {

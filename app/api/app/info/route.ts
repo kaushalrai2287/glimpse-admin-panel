@@ -172,6 +172,7 @@
 // }
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase/client'
+import { getEventIntro } from '@/lib/eventContent'
 
 export async function POST(request: NextRequest) {
   try {
@@ -318,6 +319,16 @@ export async function POST(request: NextRequest) {
 
     const app_version = profileSettings?.app_version || '1.0.0'
 
+    // Fetch intro section data
+    const introItems = await getEventIntro(event.id)
+    const intro = introItems.map(item => ({
+      id: item.id,
+      title: item.title,
+      description: item.description || null,
+      image_url: item.image_url,
+      sort_order: item.sort_order,
+    }))
+
     return NextResponse.json({
       message: 'App info retrieved successfully',
       status: 1,
@@ -328,6 +339,7 @@ export async function POST(request: NextRequest) {
         app_version,
         force_full_update: false,
         splash_image_url: event.splash_image_url || null,
+        intro: intro, // Intro section data
       },
     })
   } catch (error) {

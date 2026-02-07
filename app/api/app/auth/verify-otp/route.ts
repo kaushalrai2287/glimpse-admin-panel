@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase/client'
+import { getEventIntro } from '@/lib/eventContent'
 
 export async function POST(request: NextRequest) {
   try {
@@ -238,6 +239,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch intro section data
+    const introItems = await getEventIntro(event.id)
+    const intro = introItems.map(item => ({
+      id: item.id,
+      title: item.title,
+      description: item.description || null,
+      image_url: item.image_url,
+      sort_order: item.sort_order,
+    }))
+
     // Build response
     const responseData: any = {
       user: {
@@ -252,6 +263,7 @@ export async function POST(request: NextRequest) {
         secondary_color: event.secondary_color || '#FFFFFF',
         app_version: body.app_version || '1.0.0', // Default or from request
         forceful_update: false, // You can add this field to events table later
+        intro: intro, // Intro section data
       },
     }
 

@@ -9,6 +9,7 @@ export type ImageCategory =
   | 'venues/photos'
   | 'events/splash'
   | 'events/banners'
+  | 'events/intro'
   | 'events/explore'
   | 'events/happening'
   | 'events/sessions'

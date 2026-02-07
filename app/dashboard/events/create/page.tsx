@@ -85,6 +85,9 @@ function CreateEventPageContent() {
   const [venueContacts, setVenueContacts] = useState<Array<{ name: string, imageUrl?: string, phoneNumber?: string, email?: string }>>([])
   const [venuePhotos, setVenuePhotos] = useState<Array<{ imageUrl: string, altText?: string }>>([])
 
+  // Intro content
+  const [introItems, setIntroItems] = useState<Array<{ title: string, description?: string, imageUrl: string }>>([])
+
   // Pre-event content
   const [exploreItems, setExploreItems] = useState<Array<{ name: string, imageUrl: string }>>([])
   const [happeningItems, setHappeningItems] = useState<Array<{ imageUrl: string, altText?: string }>>([])
@@ -157,12 +160,23 @@ function CreateEventPageContent() {
         }))
 
         // Fetch related content
-        const [exploreRes, happeningRes, sessionsRes, daysRes] = await Promise.all([
+        const [introRes, exploreRes, happeningRes, sessionsRes, daysRes] = await Promise.all([
+          fetch(`/api/events/${id}/content/intro`),
           fetch(`/api/events/${id}/content/explore`),
           fetch(`/api/events/${id}/content/happening`),
           fetch(`/api/events/${id}/sessions`),
           fetch(`/api/events/${id}/days`)
         ])
+
+        if (introRes.ok) {
+          const { intro } = await introRes.json()
+          setIntroItems(intro.map((item: any) => ({
+            title: item.title,
+            description: item.description,
+            imageUrl: item.image_url,
+            id: item.id
+          })))
+        }
 
         if (exploreRes.ok) {
           const { explore } = await exploreRes.json()
@@ -339,13 +353,18 @@ function CreateEventPageContent() {
 
       if (isEditMode) {
         // Fetch existing to get IDs for deletion
-        const [exploreRes, happeningRes, sessionsRes, daysRes] = await Promise.all([
+        const [introRes, exploreRes, happeningRes, sessionsRes, daysRes] = await Promise.all([
+          fetch(`/api/events/${savedEventId}/content/intro`),
           fetch(`/api/events/${savedEventId}/content/explore`),
           fetch(`/api/events/${savedEventId}/content/happening`),
           fetch(`/api/events/${savedEventId}/sessions`),
           fetch(`/api/events/${savedEventId}/days`)
         ])
 
+        if (introRes.ok) {
+          const { intro } = await introRes.json()
+          await Promise.all(intro.map((item: any) => fetch(`/api/events/${savedEventId}/content/intro?introId=${item.id}`, { method: 'DELETE' })))
+        }
         if (exploreRes.ok) {
           const { explore } = await exploreRes.json()
           await Promise.all(explore.map((item: any) => fetch(`/api/events/${savedEventId}/content/explore?exploreId=${item.id}`, { method: 'DELETE' })))
@@ -366,6 +385,18 @@ function CreateEventPageContent() {
 
       // Add content (new or re-added)
       await Promise.all([
+        ...introItems.map((item, index) =>
+          fetch(`/api/events/${savedEventId}/content/intro`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: item.title,
+              description: item.description,
+              imageUrl: item.imageUrl,
+              sortOrder: index
+            })
+          })
+        ),
         ...exploreItems.map((item, index) =>
           fetch(`/api/events/${savedEventId}/content/explore`, {
             method: 'POST',
@@ -592,6 +623,91 @@ function CreateEventPageContent() {
                         />
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Intro Section */}
+                <div className="border-t-2 border-gray-200 pt-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#5550B7]/10">
+                      <svg className="w-5 h-5 text-[#5550B7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">Intro Section</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-6">Add intro items with image, title, and description to showcase your event.</p>
+                  <div className="space-y-4">
+                    {introItems.map((item, index) => (
+                      <div key={index} className="p-5 border-2 border-gray-200 rounded-lg bg-white hover:border-[#5550B7]/30 hover:shadow-md transition-all">
+                        <div className="grid grid-cols-1 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Title <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="Enter title"
+                              value={item.title}
+                              onChange={(e) => {
+                                const newItems = [...introItems]
+                                newItems[index].title = e.target.value
+                                setIntroItems(newItems)
+                              }}
+                              className="admin-form-input"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Description
+                            </label>
+                            <textarea
+                              rows={3}
+                              placeholder="Enter description"
+                              value={item.description || ''}
+                              onChange={(e) => {
+                                const newItems = [...introItems]
+                                newItems[index].description = e.target.value
+                                setIntroItems(newItems)
+                              }}
+                              className="admin-form-textarea"
+                            />
+                          </div>
+                          <div>
+                            <ImageUpload
+                              label="Image"
+                              name={`intro-image-${index}`}
+                              category="events/intro"
+                              value={item.imageUrl}
+                              onChange={(url) => {
+                                const newItems = [...introItems]
+                                newItems[index].imageUrl = url
+                                setIntroItems(newItems)
+                              }}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIntroItems(introItems.filter((_, i) => i !== index))}
+                          className="mt-4 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          Remove Item
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setIntroItems([...introItems, { title: '', description: '', imageUrl: '' }])}
+                      className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-[#5550B7] bg-[#5550B7]/10 rounded-lg hover:bg-[#5550B7]/20 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add Intro Item
+                    </button>
                   </div>
                 </div>
 
