@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 interface ImageUploadProps {
   label: string
   name: string
-  category: 'venues/bg' | 'venues/facilities' | 'venues/contacts' | 'venues/photos' | 'events/splash' | 'events/banners' | 'events/explore' | 'events/happening' | 'events/sessions' | 'events/days' | 'profiles'
+  category: 'venues/bg' | 'venues/facilities' | 'venues/contacts' | 'venues/photos' | 'events/splash' | 'events/banners' | 'events/intro' | 'events/explore' | 'events/happening' | 'events/sessions' | 'events/days' | 'profiles'
   value?: string
   onChange?: (imageUrl: string) => void
   required?: boolean
